@@ -12,11 +12,26 @@ def task2():
     st.title("Object Detection with Custom YOLOv12")
     st.write("Upload an image to detect objects.")
 
+    # --- Sidebar ---
+    st.sidebar.title("Settings")
+
+    # Initialize session state for confidence threshold
+    if "confidence_threshold_task2" not in st.session_state:
+        st.session_state["confidence_threshold_task2"] = 0.25  # Giá trị mặc định
+
+    # Slider để chọn confidence threshold
+    st.session_state["confidence_threshold_task2"] = st.sidebar.slider(
+        "Confidence Threshold",
+        min_value=0.0,
+        max_value=1.0,
+        value=st.session_state["confidence_threshold_task2"],  # Giá trị mặc định từ session state
+        step=0.05
+    )
+
     # Initialize session state for storing images
     if "saved_images2" not in st.session_state:
         st.session_state["saved_images2"] = []
 
-    # --- Sidebar ---
     # Sidebar to display saved images
     st.sidebar.title("Saved Images")
 
@@ -50,8 +65,8 @@ def task2():
         st.image(image, caption="Uploaded Image", use_container_width=True)
         st.write("Detecting objects...")
 
-        # Run YOLO inference
-        results = model(np.array(image))
+        # Run YOLO inference with confidence threshold
+        results = model.predict(np.array(image), conf=st.session_state["confidence_threshold_task2"])
 
         # Lấy kết quả từ YOLO
         result = results[0]  # YOLO luôn trả về danh sách, lấy phần tử đầu tiên
