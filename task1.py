@@ -6,7 +6,9 @@ from io import BytesIO
 
 def task1():
     # Load YOLO model
-    model = YOLO("yolo12n.pt")  # Đảm bảo bạn đã tải trọng số yolo12n.pt
+    if "model1" not in st.session_state:
+        st.session_state["model1"] = YOLO("yolo12n.pt")
+    model = st.session_state["model1"]
 
     # Streamlit UI
     st.title("Object Detection with Standard YOLOv12")
