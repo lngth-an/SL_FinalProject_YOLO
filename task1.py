@@ -7,11 +7,11 @@ from io import BytesIO
 def task1():
     # Load YOLO model
     if "model1" not in st.session_state:
-        st.session_state["model1"] = YOLO("yolo12n.pt")
+        st.session_state["model1"] = YOLO("yolo11n.pt")
     model = st.session_state["model1"]
 
     # Streamlit UI
-    st.title("Object Detection with Standard YOLOv12")
+    st.title("Object Detection with Standard YOLOv11")
     st.write("Upload an image to detect objects.")
 
     # --- Sidebar ---
@@ -52,6 +52,10 @@ def task1():
                 file_name=f"img_{idx + 1}.png",
                 mime="image/png"
             )
+
+            # Nút xóa ảnh đã lưu
+            if st.sidebar.button(f"❌ Delete image {idx + 1}"):
+                st.session_state["saved_images1"].pop(idx)
 
     # --- Main content ---
     # Upload image

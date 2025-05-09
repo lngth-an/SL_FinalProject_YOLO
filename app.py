@@ -23,8 +23,8 @@ st.markdown("""
 # Định nghĩa các trang
 page_names_to_funcs = {
     "Home": home,
-    "Standard YOLOv12": task1,
-    "Custom YOLOv12": task2,
+    "Standard YOLOv11": task1,
+    "Custom YOLOv11": task2,
     "About us": about_us
 }
 

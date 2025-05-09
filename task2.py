@@ -11,7 +11,7 @@ def task2():
     model = st.session_state["model2"]
 
     # Streamlit UI
-    st.title("Object Detection with Custom YOLOv12")
+    st.title("Object Detection with Custom YOLOv11")
     st.write("Upload an image to detect objects.")
 
     # --- Sidebar ---
@@ -56,6 +56,10 @@ def task2():
                 file_name=f"img_{idx + 1}.png",
                 mime="image/png"
             )
+
+            # Nút xóa ảnh đã lưu
+            if st.sidebar.button(f"❌ Delete image {idx + 1}"):
+                st.session_state["saved_images2"].pop(idx)
 
     # --- Main content ---
     # Upload image

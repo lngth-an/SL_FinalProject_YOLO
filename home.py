@@ -9,5 +9,5 @@ def home():
     st.write("""
     This is a demo product for object dectection model.\n
     This product allows predicting object names through image files.\n
-    To learn more about the web, go to SideBar for navigation.!
+    To learn more about the web, go to SideBar for navigation!
     """)
