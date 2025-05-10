@@ -1,8 +1,8 @@
 # SL_FinalProject_YOLO
 
 ### Cài đặt 
-conda create -n yolov12 python=3.11  
-conda activate yolov12  
+conda create -n yolov11 python=3.11  
+conda activate yolov11  
 pip install -r requirements.txt
 
 ### Thực thi
