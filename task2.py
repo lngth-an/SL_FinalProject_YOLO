@@ -6,7 +6,7 @@ from io import BytesIO
 import cv2
 
 # Hàm detect image
-def detect_image(model, confidence_threshold):
+def detect_image(model, confidence_threshold, iou_threshold):
     st.write("Upload an image to detect objects.")
 
     # Initialize session state for storing images
@@ -45,13 +45,13 @@ def detect_image(model, confidence_threshold):
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
-        # Load image
-        image = Image.open(uploaded_file)
+        # Load image and ensure that the image only has 3 color channels
+        image = Image.open(uploaded_file).convert("RGB")
         st.image(image, caption="Uploaded Image", use_container_width=True)
         st.write("Detecting objects...")
 
         # Run YOLO inference with confidence threshold
-        results = model.predict(np.array(image), conf=confidence_threshold)
+        results = model.predict(np.array(image), conf=confidence_threshold, iou=iou_threshold)
 
         # Lấy kết quả từ YOLO
         result = results[0]  # YOLO luôn trả về danh sách, lấy phần tử đầu tiên
@@ -70,7 +70,7 @@ def detect_image(model, confidence_threshold):
         st.image(annotated_image, caption="Detected Objects", use_container_width=True)
 
 # Hàm live_streaming 
-def live_streaming(model, conf_threshold):
+def live_streaming(model, conf_threshold, iou_threshold):
     stframe = st.empty()
 
     cap = cv2.VideoCapture(0)
@@ -88,7 +88,7 @@ def live_streaming(model, conf_threshold):
 
             try:
                 # Gọi mô hình dự đoán, không cần lọc class
-                results = model.predict(source=frame, conf=conf_threshold)
+                results = model.predict(source=frame, conf=conf_threshold, iou=iou_threshold)
 
                 # Vẽ khung và nhãn tự động bằng .plot()
                 annotated_frame = results[0].plot()
@@ -103,7 +103,7 @@ def live_streaming(model, conf_threshold):
         cap.release()
         cv2.destroyAllWindows()
 
-def detect_webcam(model, confidence_threshold):
+def detect_webcam(model, confidence_threshold, iou_threshold):
     # --- Streamlit UI ---
     st.title("🔴 Realtime Detection with Webcam")
     # Nút Start
@@ -118,7 +118,7 @@ def detect_webcam(model, confidence_threshold):
             st.session_state["is_detecting"] = False
             st.session_state["is_webcam_active"] = False
         # Gọi hàm live_streaming
-        live_streaming(model, confidence_threshold)
+        live_streaming(model, confidence_threshold, iou_threshold)
 
 def task2():
     # Load YOLO model
@@ -137,13 +137,21 @@ def task2():
         "Confidence Threshold",
         min_value=0.0,
         max_value=1.0,
-        value=0.25,  # Giá trị mặc định từ session state
+        value=0.5,  # Giá trị mặc định từ session state
+        step=0.05
+    )
+    # Slider để chọn IOU threshold (dùng cho NMS)
+    iou_threshold = st.sidebar.slider(
+        "IoU Threshold (NMS)",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.5,
         step=0.05
     )
     # Chọn chế độ phát hiện: ảnh hoặc webcam
     mode = st.sidebar.selectbox("Select Mode", ["Detect Image", "Webcam Detection"])
     if mode == "Detect Image":
-        detect_image(model, confidence_threshold)  # Gọi hàm detect_image với confidence_threshold
+        detect_image(model, confidence_threshold, iou_threshold)  # Gọi hàm detect_image với confidence_threshold
     elif mode == "Webcam Detection":
-        detect_webcam(model, confidence_threshold)
+        detect_webcam(model, confidence_threshold, iou_threshold)
 
