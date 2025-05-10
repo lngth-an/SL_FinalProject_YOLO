@@ -3,7 +3,7 @@ from PIL import Image
 
 def home():
     st.sidebar.success("You are at home now 💒.")
-    image = Image.open('./image/animals.jpg')
+    image = Image.open('./image/objectDetection.jpg')
     st.image(image)
     st.write("# Welcome to Object Detection Web! 👋")
     st.write("""

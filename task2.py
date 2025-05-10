@@ -3,36 +3,15 @@ from ultralytics import YOLO
 from PIL import Image
 import numpy as np
 from io import BytesIO
+import cv2
 
-def task2():
-    # Load YOLO model
-    if "model2" not in st.session_state:
-        st.session_state["model2"] = YOLO("yolo12n.pt")
-    model = st.session_state["model2"]
-
-    # Streamlit UI
-    st.title("Object Detection with Custom YOLOv11")
+# Hàm detect image
+def detect_image(model, confidence_threshold):
     st.write("Upload an image to detect objects.")
 
-    # --- Sidebar ---
-    st.sidebar.title("Settings")
-
-    # Initialize session state for confidence threshold
-    if "confidence_threshold_task2" not in st.session_state:
-        st.session_state["confidence_threshold_task2"] = 0.25  # Giá trị mặc định
-
-    # Slider để chọn confidence threshold
-    st.session_state["confidence_threshold_task2"] = st.sidebar.slider(
-        "Confidence Threshold",
-        min_value=0.0,
-        max_value=1.0,
-        value=st.session_state["confidence_threshold_task2"],  # Giá trị mặc định từ session state
-        step=0.05
-    )
-
     # Initialize session state for storing images
-    if "saved_images2" not in st.session_state:
-        st.session_state["saved_images2"] = []
+    if "saved_images1" not in st.session_state:
+        st.session_state["saved_images1"] = []
 
     # Sidebar to display saved images
     st.sidebar.title("Saved Images")
@@ -45,8 +24,8 @@ def task2():
         st.session_state["reload_sidebar"] = not st.session_state["reload_sidebar"]  # Đảo trạng thái để làm mới sidebar
 
     # Hiển thị danh sách ảnh đã lưu trong session state
-    if st.session_state["saved_images2"]:
-        for idx, img in enumerate(st.session_state["saved_images2"]):
+    if st.session_state["saved_images1"]:
+        for idx, img in enumerate(st.session_state["saved_images1"]):
             st.sidebar.image(img, caption=f"Image {idx + 1}", use_container_width=True)
 
             # Thêm nút tải xuống dưới mỗi hình ảnh
@@ -59,7 +38,7 @@ def task2():
 
             # Nút xóa ảnh đã lưu
             if st.sidebar.button(f"❌ Delete image {idx + 1}"):
-                st.session_state["saved_images2"].pop(idx)
+                st.session_state["saved_images1"].pop(idx)
 
     # --- Main content ---
     # Upload image
@@ -72,7 +51,7 @@ def task2():
         st.write("Detecting objects...")
 
         # Run YOLO inference with confidence threshold
-        results = model.predict(np.array(image), conf=st.session_state["confidence_threshold_task2"])
+        results = model.predict(np.array(image), conf=confidence_threshold)
 
         # Lấy kết quả từ YOLO
         result = results[0]  # YOLO luôn trả về danh sách, lấy phần tử đầu tiên
@@ -84,8 +63,87 @@ def task2():
         img_bytes = img_bytes.getvalue()  # Lấy dữ liệu nhị phân của ảnh
 
         # Thêm ảnh đã xử lý (dạng byte) vào session state
-        if img_bytes not in st.session_state["saved_images2"]:
-            st.session_state["saved_images2"].append(img_bytes)
+        if img_bytes not in st.session_state["saved_images1"]:
+            st.session_state["saved_images1"].append(img_bytes)
 
         # Hiển thị ảnh đã xử lý
         st.image(annotated_image, caption="Detected Objects", use_container_width=True)
+
+# Hàm live_streaming 
+def live_streaming(model, conf_threshold):
+    stframe = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        st.error("Error: Could not access the webcam. Please make sure your webcam is working.")
+        return
+
+    try:
+        while st.session_state.get("is_detecting", False) and st.session_state.get("is_webcam_active", False):
+            ret, frame = cap.read()
+
+            if not ret:
+                st.warning("Warning: Failed to read frame from the webcam. Retrying...")
+                continue
+
+            try:
+                # Gọi mô hình dự đoán, không cần lọc class
+                results = model.predict(source=frame, conf=conf_threshold)
+
+                # Vẽ khung và nhãn tự động bằng .plot()
+                annotated_frame = results[0].plot()
+
+                # Hiển thị lên Streamlit
+                stframe.image(annotated_frame, channels="BGR")
+
+            except Exception as e:
+                st.error(f"Error during model prediction: {str(e)}")
+
+    finally:
+        cap.release()
+        cv2.destroyAllWindows()
+
+def detect_webcam(model, confidence_threshold):
+    # --- Streamlit UI ---
+    st.title("🔴 Realtime Detection with Webcam")
+    # Nút Start
+    if st.button("🚀 Start Webcam Detection") and not st.session_state.get("is_webcam_active", False):
+        st.session_state["is_detecting"] = True
+        st.session_state["is_webcam_active"] = True
+
+    # Nếu webcam đang hoạt động thì gọi live_streaming
+    if st.session_state.get("is_webcam_active", False):
+        # Hiển thị nút Stop nếu webcam đang bật
+        if st.button("🛑 Stop Webcam"):
+            st.session_state["is_detecting"] = False
+            st.session_state["is_webcam_active"] = False
+        # Gọi hàm live_streaming
+        live_streaming(model, confidence_threshold)
+
+def task2():
+    # Load YOLO model
+    if "model2" not in st.session_state:
+        st.session_state["model2"] = YOLO("best.pt")
+    model = st.session_state["model2"]
+
+    # Streamlit UI
+    st.title("Object Detection with Custom YOLOv11")
+
+    # --- Sidebar ---
+    st.sidebar.title("Settings")
+
+    # Slider để chọn confidence threshold
+    confidence_threshold = st.sidebar.slider(
+        "Confidence Threshold",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.25,  # Giá trị mặc định từ session state
+        step=0.05
+    )
+    # Chọn chế độ phát hiện: ảnh hoặc webcam
+    mode = st.sidebar.selectbox("Select Mode", ["Detect Image", "Webcam Detection"])
+    if mode == "Detect Image":
+        detect_image(model, confidence_threshold)  # Gọi hàm detect_image với confidence_threshold
+    elif mode == "Webcam Detection":
+        detect_webcam(model, confidence_threshold)
+
