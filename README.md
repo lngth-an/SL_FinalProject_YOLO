@@ -25,9 +25,20 @@ Cả hai phiên bản đều hỗ trợ:
 
 ## 🛠️ Cài đặt môi trường
 
+- Sử dụng `conda`:
+
 ```bash
 conda create -n yolo11 python=3.11
 conda activate yolo11
+pip install -r requirements.txt
+```
+  
+- Sử dụng `venv`:
+
+```bash
+python -m venv yolov11
+yolov11\Scripts\activate # Windows
+source yolov11/bin/activate # macOS/Linux
 pip install -r requirements.txt
 ```
 
