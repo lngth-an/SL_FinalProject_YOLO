@@ -8,7 +8,7 @@
 Sử dụng mô hình YOLOv11 với bộ trọng số (weights) mặc định do Ultralytics cung cấp. Phiên bản này hỗ trợ nhận diện nhiều vật thể phổ biến như **người**, **xe**, **động vật**, v.v... một cách **nhanh chóng và chính xác**.
 
 ### 🔸 Version 2 – Custom YOLOv11
-Cho phép người dùng sử dụng **bộ trọng số đã chọn từ Version 1 để huấn luyện mô hình nhận diện các lớp vật thể mới**  
+Cho phép người dùng sử dụng **bộ trọng số đã chọn từ Version 1 để huấn luyện mô hình nhận diện các lớp vật thể mới**.  
 Phù hợp với các bài toán đặc thù hoặc nhu cầu nhận diện nâng cao.
 
 ### 👀 Hai chế độ nhận diện
