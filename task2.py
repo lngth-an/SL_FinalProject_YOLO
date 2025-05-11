@@ -87,7 +87,7 @@ def live_streaming(model, conf_threshold, iou_threshold):
                 continue
 
             try:
-                # Gọi mô hình dự đoán, không cần lọc class
+                # Gọi mô hình dự đoán
                 results = model.predict(source=frame, conf=conf_threshold, iou=iou_threshold)
 
                 # Vẽ khung và nhãn tự động bằng .plot()

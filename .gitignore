@@ -1,3 +1,4 @@
 # Ignore Conda environment folder
 yolov12/
+yolov11/
 __pycache__/
