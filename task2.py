@@ -10,8 +10,8 @@ def detect_image(model, confidence_threshold, iou_threshold):
     st.write("Upload an image to detect objects.")
 
     # Initialize session state for storing images
-    if "saved_images1" not in st.session_state:
-        st.session_state["saved_images1"] = []
+    if "saved_images2" not in st.session_state:
+        st.session_state["saved_images2"] = []
 
     # Sidebar to display saved images
     st.sidebar.title("Saved Images")
@@ -24,8 +24,8 @@ def detect_image(model, confidence_threshold, iou_threshold):
         st.session_state["reload_sidebar"] = not st.session_state["reload_sidebar"]  # Đảo trạng thái để làm mới sidebar
 
     # Hiển thị danh sách ảnh đã lưu trong session state
-    if st.session_state["saved_images1"]:
-        for idx, img in enumerate(st.session_state["saved_images1"]):
+    if st.session_state["saved_images2"]:
+        for idx, img in enumerate(st.session_state["saved_images2"]):
             st.sidebar.image(img, caption=f"Image {idx + 1}", use_container_width=True)
 
             # Thêm nút tải xuống dưới mỗi hình ảnh
@@ -38,7 +38,7 @@ def detect_image(model, confidence_threshold, iou_threshold):
 
             # Nút xóa ảnh đã lưu
             if st.sidebar.button(f"❌ Delete image {idx + 1}"):
-                st.session_state["saved_images1"].pop(idx)
+                st.session_state["saved_images2"].pop(idx)
 
     # --- Main content ---
     # Upload image
@@ -63,8 +63,8 @@ def detect_image(model, confidence_threshold, iou_threshold):
         img_bytes = img_bytes.getvalue()  # Lấy dữ liệu nhị phân của ảnh
 
         # Thêm ảnh đã xử lý (dạng byte) vào session state
-        if img_bytes not in st.session_state["saved_images1"]:
-            st.session_state["saved_images1"].append(img_bytes)
+        if img_bytes not in st.session_state["saved_images2"]:
+            st.session_state["saved_images2"].append(img_bytes)
 
         # Hiển thị ảnh đã xử lý
         st.image(annotated_image, caption="Detected Objects", use_container_width=True)
